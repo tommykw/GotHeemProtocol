@@ -1,21 +1,64 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-
 buildscript {
     repositories {
         jcenter()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.2.2'
-
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
 }
 
 allprojects {
     repositories {
         jcenter()
+        maven { url "https://jitpack.io" }
     }
+}
+
+ext {
+    versionFile = project.file("VERSION")
+    versionName = versionFile.readLines()[0].trim()
+}
+
+def updateReadme(oldVersion, newVersion) {
+    def template = file('README.md').text
+    def result = template.replaceAll(java.util.regex.Pattern.quote(oldVersion), newVersion)
+    file("README.md").withWriter { it << result }
+}
+
+task bumpMajor << {
+    def oldVersion = versionName
+    def versionParts = versionName.split(/\./)
+    versionParts[0] = (versionParts[0] as int) + 1
+    def newVersion = "${versionParts[0]}.0.0"
+    versionFile.write(newVersion + "\n")
+    updateReadme(oldVersion, newVersion)
+    tasks.version.execute()
+}
+
+task bumpMinor << {
+    def oldVersion = versionName
+    def versionParts = versionName.split(/\./)
+    versionParts[1] = (versionParts[1] as int) + 1
+    def newVersion = "${versionParts[0]}.${versionParts[1]}.0"
+    versionFile.write(newVersion + "\n")
+    updateReadme(oldVersion, newVersion)
+    tasks.version.execute()
+}
+
+task bumpPatch << {
+    def oldVersion = versionName
+    def versionParts = versionName.split(/\./)
+    versionParts[2] = (versionParts[2].split(/\D/)[0] as int) + 1
+    def newVersion = "${versionParts[0]}.${versionParts[1]}.${versionParts[2]}"
+    versionFile.write(newVersion + "\n")
+    updateReadme(oldVersion, newVersion)
+    tasks.version.execute()
+}
+
+task version << {
+    println "v" + versionFile.readLines()[0]
 }
 
 task clean(type: Delete) {
