@@ -1,8 +1,12 @@
 package com.github.tommykw.compiler;
 
 import com.github.tommykw.library.Generatable;
+import com.github.tommykw.library.Params;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.MethodSpec;
 
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 import java.util.logging.Filter;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -50,5 +54,36 @@ public class Processor extends AbstractProcessor {
             }
         }
         return true;
+    }
+
+    private void generate(Element element) throws IOException {
+        String packageName = elements.getPackageOf(element).getQualifiedName().toString();
+        messager.printMessage(Diagnostic.Kind.OTHER, packageName);
+        ClassName modelClass = ClassName.get(packageName, element.getSimpleName().toString());
+
+        Class<Params> paramsClass = Params.class;
+        String message = null;
+        for (Element element : element.getEnclosedElements()) {
+            if (element.getAnnotation(paramsClass) != null) {
+                messager.printMessage(Diagnostic.Kind.OTHER, element.getSimpleNmae());
+                messager.printMessage(Diagnostic.Kind.OTHER< element.getAnnotation(paramsClass).toString());
+                String fieldName = element.getSimpleName().toString();
+                if (message == null) {
+                    message = fieldName + fieldName;
+                } else {
+                    message += fieldName + fieldName;
+                }
+            }
+        }
+
+        String tag = element.getSimpleName().toString();
+        ClassName className = ClassName.get("android.util", "Log");
+        MethodSpec method = MethodSpec.methodBuilder("log")
+                .addParameter(className, "model")
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addStatement("()", className)
+                .build();
+
+        String cname = element.getSimpleName() + "Logger";
     }
 }
