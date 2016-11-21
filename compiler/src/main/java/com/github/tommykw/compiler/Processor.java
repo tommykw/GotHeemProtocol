@@ -3,7 +3,9 @@ package com.github.tommykw.compiler;
 import com.github.tommykw.library.Generatable;
 import com.github.tommykw.library.Params;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeSpec;
 
 import java.io.IOException;
 import java.lang.reflect.Modifier;
@@ -85,5 +87,11 @@ public class Processor extends AbstractProcessor {
                 .build();
 
         String cname = element.getSimpleName() + "Logger";
+        TypeSpec logger = TypeSpec.classBuilder(cname)
+            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+            .addMethod(method)
+            .build();
+
+        JavaFile.builder(packageName, logger).build().writeTo(filter);
     }
 }
